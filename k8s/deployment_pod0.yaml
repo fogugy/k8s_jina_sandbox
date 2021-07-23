@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jina-pod0-deployment
+  labels:
+    app: jina-pod0
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jina-pod0
+  template:
+    metadata:
+      labels:
+        app: jina-pod0
+    spec:
+      containers:
+      - name: pod0
+        image: us-central1-docker.pkg.dev/jina-sandbox/images/jina-base:latest
+        env:
+          - name: PORT_IN
+            valueFrom:
+              configMapKeyRef:
+                name: jina-configmap
+                key: port-in
+          - name: PORT_CTRL
+            valueFrom:
+              configMapKeyRef:
+                name: jina-configmap
+                key: port-ctrl
+          - name: HOST_IN
+            valueFrom:
+              configMapKeyRef:
+                name: jina-configmap
+                key: gateway-host-name
+          - name: HOST_OUT
+            valueFrom:
+              configMapKeyRef:
+                name: jina-configmap
+                key: pod1-host-name
+
+        command: ["jina", "pod"]
+        args: [
+          "--uses", "/executors/add_text.yaml",
+          "--port-in", "$(PORT_IN)",
+          "--port-ctrl", "$(PORT_CTRL)",
+          "--host-in", "$(HOST_IN)",
+          "--host-out", "$(HOST_OUT)",
+          "--port-out", "$(PORT_IN)",
+          "--socket-in", "SUB_CONNECT",
+          "--socket-out", "PUB_CONNECT"
+        ]
+        livenessProbe:
+          exec:
+            command:
+              - /bin/sh
+              - -c
+              - jina ping 0.0.0.0 $PORT_CTRL
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 30
+        readinessProbe:
+          exec:
+            command:
+              - /bin/sh
+              - -c
+              - jina ping 0.0.0.0 $PORT_CTRL
+          initialDelaySeconds: 30
+          periodSeconds: 30 
+          timeoutSeconds: 30

@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: jina-gateway-svc
+spec:
+  type: NodePort
+
+  ports:
+  - port: 55500
+    targetPort: 55500
+    name: gateway-port-in
+    nodePort: 30500
+
+  - port: 55501
+    targetPort: 55501
+    name: gateway-port-out
+    nodePort: 30501
+
+  - port: 60000
+    targetPort: 60000
+    name: gateway-port-ctrl
+    nodePort: 30600
+
+  selector:
+    app: jina-gateway

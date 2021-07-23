@@ -1,0 +1,7 @@
+jtype: TestExecutor
+metas:
+  py_modules:
+    - /executors/executors.py
+  name: TestExecutor
+requests:
+  /index: pause

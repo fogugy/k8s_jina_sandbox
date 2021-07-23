@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: jina-pod0-svc
+spec:
+  ports:
+  - port: 55500
+    targetPort: 55500
+    name: pod0-port-in
+  - port: 60000
+    targetPort: 60000
+    name: pod0-port-ctrl
+  selector:
+    app: jina-pod0
