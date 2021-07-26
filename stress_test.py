@@ -1,34 +1,65 @@
-from sys import argv
-
-import requests
-
+import aiohttp
+import argparse
+import asyncio
+from datetime import datetime
 
 headers = {'Content-Type': 'application/json'}
 
 
-def stress_test(url, n, batch_size):
+def ts():
+    return datetime.now().strftime("%H:%M:%S")
 
-    for x in range(n):
-        d = {"data": []}
+
+async def stress_test():
+    for x in range(n_requests):
+        docs = {"data": []}
 
         for bi in range(batch_size):
-            d["data"].append({"id": f"{x}-{bi}"})
+            docs["data"].append({
+                "id": f"{x}-{bi}",
+                "weight_mb": weight,
+                "delay": delay
+            })
 
-        print(x, 'request', end=' ... ')
+        async with aiohttp.ClientSession() as session:
+            print(f'{ts()}', end=' ')
+            data = await post_docs(session, url, docs)
+            print('to', ts())
 
-        r = requests.post(
-            url,
-            json=d,
-            headers=headers,
-        )
 
-        print(r.status_code)
+async def post_docs(
+        session: aiohttp.ClientSession,
+        url, docs):
+    r = await session.post(
+        url,
+        json=docs,
+        headers=headers,
+    )
+    return await r.json()
 
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-u', help='host url')
+parser.add_argument('-n', help='count of requests')
+parser.add_argument('-b', help='batch size')
+parser.add_argument('-w', help='weight of single document')
+parser.add_argument('-d', help='delay on lask pod')
 
 if __name__ == '__main__':
-    args = argv[1:]
-    url = "http://" + args[0] + "/index"
-    n = int(args[1])
-    batch_size = int(args[2])
+    args = parser.parse_args()
 
-    stress_test(url, n, batch_size)
+    url = args.u
+    n_requests = int(args.n)
+    batch_size = int(args.b)
+    weight = float(args.w)
+    delay = int(args.d)
+
+    print(
+        'n_requests:', n_requests,
+        'batch_size:', batch_size,
+        'weight:', weight,
+        'delay:', delay,
+    )
+
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(stress_test())
