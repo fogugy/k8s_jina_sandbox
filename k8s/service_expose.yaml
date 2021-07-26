@@ -9,6 +9,7 @@ spec:
   - port: 80
     targetPort: 30333
     name: gateway-port-expose
+    nodePort: 30333
 
   selector:
     app: jina-gateway
