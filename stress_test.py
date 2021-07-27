@@ -18,13 +18,14 @@ async def stress_test():
             docs["data"].append({
                 "id": f"{x}-{bi}",
                 "weight_mb": weight,
-                "delay": delay
+                "delay_pod0": delay0,
+                "delay_pod1": delay1,
             })
 
         async with aiohttp.ClientSession() as session:
             print(f'{ts()}', end=' ')
             data = await post_docs(session, url, docs)
-            print('to', ts())
+            print('to', ts(), f"{data['data']['docs'][0]['text']} x {len(data['data']['docs'])}")
 
 
 async def post_docs(
@@ -43,7 +44,8 @@ parser.add_argument('-u', help='host url')
 parser.add_argument('-n', help='count of requests')
 parser.add_argument('-b', help='batch size')
 parser.add_argument('-w', help='weight of single document')
-parser.add_argument('-d', help='delay on lask pod')
+parser.add_argument('-d0', help='delay on lask pod')
+parser.add_argument('-d1', help='delay on lask pod')
 
 if __name__ == '__main__':
     args = parser.parse_args()
@@ -52,13 +54,15 @@ if __name__ == '__main__':
     n_requests = int(args.n)
     batch_size = int(args.b)
     weight = float(args.w)
-    delay = int(args.d)
+    delay0 = int(args.d0)
+    delay1 = int(args.d1)
 
     print(
         'n_requests:', n_requests,
         'batch_size:', batch_size,
         'weight:', weight,
-        'delay:', delay,
+        'delay0:', delay0,
+        'delay1:', delay1,
     )
 
     loop = asyncio.get_event_loop()

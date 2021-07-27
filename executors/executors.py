@@ -18,10 +18,12 @@ class TestExecutor(Executor):
         for doc in docs:
             txt = generate_text(int(doc.tags['weight_mb']))
             doc.text = txt
+        delay = int(docs[0].tags['delay_pod0'])
+        time.sleep(delay)
         return docs
 
     def pause(self, docs: 'DocumentArray', **kwargs):
-        delay = int(docs[0].tags['delay'])
+        delay = int(docs[0].tags['delay_pod1'])
         time.sleep(delay)
         for doc in docs:
             doc.text = 'size: {:.2f} Mb'.format(getsizeof(doc.text) / 1024 ** 2)
