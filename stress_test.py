@@ -23,9 +23,12 @@ async def stress_test():
             })
 
         async with aiohttp.ClientSession() as session:
-            print(f'{ts()}', end=' ')
+            print(f'{x}: {ts()}', end=' ')
             data = await post_docs(session, url, docs)
-            print('to', ts(), f"{data['data']['docs'][0]['text']} x {len(data['data']['docs'])}")
+            w = data['data']['docs'][0]['tags']['weight_mb']
+            wt = '{:.2f} Mb'.format(w)
+            count = len(data['data']['docs'])
+            print('to', ts(), f"{wt} x {count}")
 
 
 async def post_docs(
@@ -44,8 +47,8 @@ parser.add_argument('-u', help='host url')
 parser.add_argument('-n', help='count of requests')
 parser.add_argument('-b', help='batch size')
 parser.add_argument('-w', help='weight of single document')
-parser.add_argument('-d0', help='delay on lask pod')
-parser.add_argument('-d1', help='delay on lask pod')
+parser.add_argument('-d0', help='delay on pod 0')
+parser.add_argument('-d1', help='delay on pod 1')
 
 if __name__ == '__main__':
     args = parser.parse_args()

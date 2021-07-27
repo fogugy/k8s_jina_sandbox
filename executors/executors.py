@@ -26,5 +26,7 @@ class TestExecutor(Executor):
         delay = int(docs[0].tags['delay_pod1'])
         time.sleep(delay)
         for doc in docs:
-            doc.text = 'size: {:.2f} Mb'.format(getsizeof(doc.text) / 1024 ** 2)
+            # doc.tags['weight_mb'] = 'size: {:.2f} Mb'.format(getsizeof(doc.text) / 1024 ** 2)
+            doc.tags['weight_mb'] = getsizeof(doc.text) / 1024 ** 2
+            doc.text = ''
         return docs
