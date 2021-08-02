@@ -17,11 +17,20 @@ spec:
         app: jina-gateway
 
     spec:
+      volumes:
+        - name: storage
+          persistentVolumeClaim:
+            claimName: storage
 
       containers:
       - name: gateway
         image: us-central1-docker.pkg.dev/jina-sandbox/images/jina-base:latest
 #        imagePullPolicy: Never
+        volumeMounts:
+          - mountPath: "/storage"
+            name: storage
+        terminationMessagePath: "/storage/logs_gateway"
+
         env:
           - name: PORT_IN
             valueFrom:
@@ -57,6 +66,7 @@ spec:
         command: ["jina", "gateway"]
         args: [
           "--restful",
+          "--name", "gateway",
           "--port-in", "$(PORT_OUT)",
           "--port-out", "$(PORT_IN)",
           "--port-ctrl", "$(PORT_CTRL)",

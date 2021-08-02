@@ -4,6 +4,8 @@ build-image:
 	docker push us-central1-docker.pkg.dev/jina-sandbox/images/jina-base
 
 deploy:
+	kubectl apply -f ./k8s/storage-class.yaml &&\
+	kubectl apply -f ./k8s/index-pvc.yaml &&\
 	kubectl apply -f ./k8s/configmap.yaml &&\
 	kubectl apply -f ./k8s/service_gateway.yaml &&\
 	kubectl apply -f ./k8s/service_expose.yaml &&\

@@ -14,10 +14,23 @@ spec:
       labels:
         app: jina-pod0
     spec:
+      volumes:
+        - name: storage
+          persistentVolumeClaim:
+            claimName: storage
+
       containers:
       - name: pod0
         image: us-central1-docker.pkg.dev/jina-sandbox/images/jina-base:latest
+        volumeMounts:
+          - mountPath: "/storage"
+            name: storage
+        terminationMessagePath: "/storage/logs_pod0"
+
         env:
+          - name: LOG_PATH
+            value: '/storage/logs.txt'
+
           - name: PORT_IN
             valueFrom:
               configMapKeyRef:
@@ -42,6 +55,7 @@ spec:
         command: ["jina", "pod"]
         args: [
           "--uses", "/executors/add_text.yaml",
+          "--name", "pod0",
           "--port-in", "$(PORT_IN)",
           "--port-ctrl", "$(PORT_CTRL)",
           "--host-in", "$(HOST_IN)",
