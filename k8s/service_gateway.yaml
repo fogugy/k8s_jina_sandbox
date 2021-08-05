@@ -6,12 +6,12 @@ spec:
   type: NodePort
 
   ports:
-  - port: 55500
+  - port: 55501
     targetPort: 55500
     name: gateway-port-in
     nodePort: 30500
 
-  - port: 55501
+  - port: 55500
     targetPort: 55501
     name: gateway-port-out
     nodePort: 30501

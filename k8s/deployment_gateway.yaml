@@ -32,16 +32,6 @@ spec:
         terminationMessagePath: "/storage/logs_gateway"
 
         env:
-          - name: PORT_IN
-            valueFrom:
-              configMapKeyRef:
-                name: jina-configmap
-                key: port-in
-          - name: PORT_OUT
-            valueFrom:
-              configMapKeyRef:
-                name: jina-configmap
-                key: port-out
           - name: PORT_CTRL
             valueFrom:
               configMapKeyRef:
@@ -52,27 +42,40 @@ spec:
               configMapKeyRef:
                 name: jina-configmap
                 key: gateway-port-expose
+
           - name: HOST_IN
             valueFrom:
               configMapKeyRef:
                 name: jina-configmap
                 key: pod1-host-name
+          - name: PORT_IN
+            valueFrom:
+              configMapKeyRef:
+                name: jina-configmap
+                key: port-in
           - name: HOST_OUT
             valueFrom:
               configMapKeyRef:
                 name: jina-configmap
                 key: pod0-host-name
+          - name: PORT_OUT
+            valueFrom:
+              configMapKeyRef:
+                name: jina-configmap
+                key: port-out
 
         command: ["jina", "gateway"]
         args: [
           "--restful",
           "--name", "gateway",
-          "--port-in", "$(PORT_OUT)",
-          "--port-out", "$(PORT_IN)",
           "--port-ctrl", "$(PORT_CTRL)",
           "--port-expose", "$(PORT_EXPOSE)",
+
           "--host-in", "$(HOST_IN)",
+          "--port-in", "$(PORT_IN)",
           "--host-out", "$(HOST_OUT)",
+          "--port-out", "$(PORT_OUT)",
+
           "--socket-in", "PULL_BIND",
           "--socket-out", "PUB_BIND"
         ]

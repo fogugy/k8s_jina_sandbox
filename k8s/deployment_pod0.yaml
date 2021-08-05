@@ -31,36 +31,44 @@ spec:
           - name: LOG_PATH
             value: '/storage/logs.txt'
 
-          - name: PORT_IN
-            valueFrom:
-              configMapKeyRef:
-                name: jina-configmap
-                key: port-in
           - name: PORT_CTRL
             valueFrom:
               configMapKeyRef:
                 name: jina-configmap
                 key: port-ctrl
+
           - name: HOST_IN
             valueFrom:
               configMapKeyRef:
                 name: jina-configmap
                 key: gateway-host-name
+          - name: PORT_IN
+            valueFrom:
+              configMapKeyRef:
+                name: jina-configmap
+                key: port-in
           - name: HOST_OUT
             valueFrom:
               configMapKeyRef:
                 name: jina-configmap
                 key: pod1-host-name
+          - name: PORT_OUT
+            valueFrom:
+              configMapKeyRef:
+                name: jina-configmap
+                key: port-out
 
         command: ["jina", "pod"]
         args: [
           "--uses", "/executors/add_text.yaml",
           "--name", "pod0",
-          "--port-in", "$(PORT_IN)",
           "--port-ctrl", "$(PORT_CTRL)",
+
           "--host-in", "$(HOST_IN)",
+          "--port-in", "$(PORT_IN)",
           "--host-out", "$(HOST_OUT)",
-          "--port-out", "$(PORT_IN)",
+          "--port-out", "$(PORT_OUT)",
+
           "--socket-in", "SUB_CONNECT",
           "--socket-out", "PUB_CONNECT"
         ]

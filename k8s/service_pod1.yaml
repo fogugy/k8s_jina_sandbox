@@ -4,9 +4,14 @@ metadata:
   name: jina-pod1-svc
 spec:
   ports:
-  - port: 55500
+  - port: 55501
     targetPort: 55500
     name: pod1-port-in
+
+  - port: 55500
+    targetPort: 55501
+    name: pod1-port-out
+
   - port: 60000
     targetPort: 60000
     name: pod1-port-ctrl

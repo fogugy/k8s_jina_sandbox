@@ -10,51 +10,60 @@ from utils import ts, log
 headers = {'Content-Type': 'application/json'}
 
 
-async def stress_test():
+async def test():
     async with aiohttp.ClientSession() as session:
         tasks = []
 
-        for x in range(n_requests):
-            docs = {"data": []}
-            id = str(uuid.uuid4())[:8]
-
-            for bi in range(batch_size):
-                docs["data"].append({
-                    "id": id,
-                    "weight_mb": weight,
-                    "delay_pod0": delay0,
-                    "delay_pod1": delay1,
-                })
-
-            tasks.append(post_docs(session, url, docs))
+        for i, x in enumerate(range(n_requests)):
+            docs = get_docs_batch()
+            tasks.append(post_docs(session, url, docs, delay_query * i))
 
         responses = await asyncio.gather(*tasks, return_exceptions=True)
         for i, r in enumerate(responses):
-            log('logs.txt', str(r))
-            status_ = r.get('status', {}).get('code', 'pass')
-            from_ = dateparser.parse(r['routes'][0]['start_time'])
-            to_ = dateparser.parse(r['routes'][-2]['end_time'])
-            w_ = '{:.2f} Mb'.format(r['data']['docs'][0]['tags']['weight_mb'])
-            print(f"{i}: {ts(from_)}, {ts(to_)}\t{status_}\t{w_} x {len(r['data']['docs'])}")
-
-
-# drop the base
-# check fail loss
-
-def get_status(r):
-    s = r.get('status', None)
-    return r['status'].get('code') if r['status'] else 'PASS'
+            print_response(i, r)
 
 
 async def post_docs(
         session: aiohttp.ClientSession,
-        url, docs):
+        url,
+        docs,
+        delay=.0,
+):
+    await asyncio.sleep(delay)
     r = await session.post(
         url,
         json=docs,
         headers=headers,
     )
     return await r.json()
+
+
+def get_docs_batch():
+    docs = {"data": []}
+    id = str(uuid.uuid4())[:4]
+
+    for bi in range(batch_size):
+        docs["data"].append({
+            "id": id,
+            "weight_mb": weight,
+            "delay_pod0": delay0,
+            "delay_pod1": delay1,
+        })
+
+    return docs
+
+
+def print_response(i, r):
+    log('logs.txt', str(r))
+    status_ = r.get('status', {}).get('code', 'pass')
+    from_ = dateparser.parse(r['routes'][0]['start_time'])
+    to_ = dateparser.parse(r['routes'][-2]['end_time'])
+    w_ = '{:.2f} Mb'.format(r['data']['docs'][0]['tags']['weight_mb'])
+    print(f"{i}: {ts(from_)}, {ts(to_)}\t{status_}\t{w_} x {len(r['data']['docs'])}")
+
+
+def get_status(r):
+    return r['status'].get('code') if r['status'] else 'PASS'
 
 
 parser = argparse.ArgumentParser()
@@ -64,6 +73,7 @@ parser.add_argument('-b', help='batch size')
 parser.add_argument('-w', help='weight of single document')
 parser.add_argument('-d0', help='delay on pod 0')
 parser.add_argument('-d1', help='delay on pod 1')
+parser.add_argument('-dl', help='delay between queries')
 
 if __name__ == '__main__':
     args = parser.parse_args()
@@ -74,13 +84,19 @@ if __name__ == '__main__':
     weight = float(args.w)
     delay0 = int(args.d0)
     delay1 = int(args.d1)
+    delay_query = float(args.dl)
 
     print(
         'n_requests:', n_requests,
-        '\nbatch_size:', batch_size,
+        '\nbatch size:', batch_size,
         '\nweight:', weight,
-        '\ndelay0:', delay0,
-        '\ndelay1:', delay1,
+        '\ndelay pod0:', delay0,
+        '\ndelay pod1:', delay1,
+        '\ndelay query:', delay_query,
     )
 
-    asyncio.run(stress_test())
+    if delay_query > 0:
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(test())
+    else:
+        asyncio.run(test())
