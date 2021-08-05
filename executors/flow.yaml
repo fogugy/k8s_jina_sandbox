@@ -1,0 +1,13 @@
+jtype: Flow
+version: '1'
+with:
+  port_expose: 33300
+#  restful: True
+  protocol: http
+  py_modules:
+    - ./executors/executors.py
+
+executors:
+  - name: pod0
+    uses:
+      jtype: TestExecutor

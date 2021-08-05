@@ -4,7 +4,7 @@ from datetime import datetime
 from sys import getsizeof
 
 import numpy as np
-from jina import Executor, DocumentArray
+from jina import Executor, DocumentArray, requests
 
 
 def ts():
@@ -25,8 +25,9 @@ def log(docs, pod_name, pre):
 
 
 class TestExecutor(Executor):
+    @requests
     def empty(self, docs: 'DocumentArray', **kwargs):
-        return docs
+        pass
 
     def add_text(self, docs: 'DocumentArray', **kwargs):
         log(docs, 'POD0', 'IN')
