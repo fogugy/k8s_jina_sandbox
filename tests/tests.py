@@ -53,13 +53,13 @@ def get_docs_batch():
     return docs
 
 
-def print_response(i, r):
-    log('logs.txt', str(r))
+def print_response(i, r, id=None):
+    log('../logs.txt', str(r))
     status_ = r.get('status', {}).get('code', 'pass')
     from_ = dateparser.parse(r['routes'][0]['start_time'])
     to_ = dateparser.parse(r['routes'][-2]['end_time'])
     w_ = '{:.2f} Mb'.format(r['data']['docs'][0]['tags']['weight_mb'])
-    print(f"{i}: {ts(from_)}, {ts(to_)}\t{status_}\t{w_} x {len(r['data']['docs'])}")
+    print(f"{i}: {ts(from_)}/{ts(to_)}\t{status_}\t{w_} x {len(r['data']['docs'])}")
 
 
 def get_status(r):
@@ -73,7 +73,7 @@ parser.add_argument('-b', help='batch size')
 parser.add_argument('-w', help='weight of single document')
 parser.add_argument('-d0', help='delay on pod 0')
 parser.add_argument('-d1', help='delay on pod 1')
-parser.add_argument('-dl', help='delay between queries')
+parser.add_argument('-dq', help='delay between queries')
 
 if __name__ == '__main__':
     args = parser.parse_args()
@@ -84,7 +84,7 @@ if __name__ == '__main__':
     weight = float(args.w)
     delay0 = int(args.d0)
     delay1 = int(args.d1)
-    delay_query = float(args.dl)
+    delay_query = float(args.dq)
 
     print(
         'n_requests:', n_requests,
